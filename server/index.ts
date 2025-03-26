@@ -1,6 +1,5 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
-import { log } from "./vite"; // Keep log utility if it’s standalone
 
 const app = express();
 app.use(express.json());
@@ -30,15 +29,15 @@ app.use((req: Request, res: Response, next: NextFunction) => {
         logLine = logLine.slice(0, 79) + "…";
       }
 
-      log(logLine); // Ensure `log` works in a serverless context
+      console.log(logLine); // Replaced `log` from ./vite with console.log
     }
   });
 
   next();
 });
 
-// Register routes synchronously
-registerRoutes(app); // Remove async/await unless registerRoutes returns a Promise
+// Register routes
+registerRoutes(app);
 
 // Error handling middleware
 app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
@@ -46,8 +45,6 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
   const message = err.message || "Internal Server Error";
 
   res.status(status).json({ message });
-  // Remove throw err; Vercel logs errors automatically
 });
 
-// Export the app for Vercel
 export default app;
